@@ -12,7 +12,7 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-object Client {
+object HttpClient {
   def get[T: RootJsonReader](url: String)(implicit timeout: Duration): T = {
     val system = ActorSystem(s"url_request_${java.util.UUID.randomUUID}")
     try {

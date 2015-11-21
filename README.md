@@ -5,22 +5,30 @@ This is a scala client for Developmentseed's [landsat-api](https://github.com/de
 ### Example usages
 
 ```scala
+  val philly = GeoJson.fromFile[Polygon]("src/test/resources/philly.json")
+
   val images =
     Landsat8Query()
-      .withStartDate(new DateTime(2015, 1, 12, 0, 0, 0))
+      .withStartDate(new DateTime(2012, 1, 12, 0, 0, 0))
       .withEndDate(new DateTime(2015, 11, 5, 0, 0, 0))
-      .contains(-75.26596069335938,39.88296828403436,-75.05859375,40.01351528489102)
+      .withMaxCloudCoverage(80.0)
+      .intersects(philly)
       .collect()
 
-  images.filter(_.cloudPercentage < 10).take(5).map { image =>
-    println(s"${image.sceneId} - ${image.cloudPercentage}% clouds")
-    println(image.thumbnailUrl)
-    println(image.largeThumbnail)
-    println(image.smallThumbnail)
-    println(image.footprint)
-  }
+  val s3Client = S3Client()
+  val filtered = images.filter(s3Client.imageExists(_))
 
-  println(s"Results: ${images.size} images.")
+  filtered
+    .foreach { image =>
+      println(s"${image.sceneId} - ${image.cloudPercentage}% clouds")
+      println(s"\tAquisition Date: ${image.aquisitionDate}")
+      println(s"\tUSGS Thumbnail URL: ${image.thumbnailUrl}")
+      println(s"\tAWS large thumbnail URL: ${image.largeThumbnail}")
+      println(s"\tGoogle URL: ${image.googleUrl}")
+      println(s"\tFootprint GeoJSON: ${image.footprint.toGeoJson}")
+    }
+
+  println(s"Results: ${filtered.size} images.")
 ```
 
 ```scala

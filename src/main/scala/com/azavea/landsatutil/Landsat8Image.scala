@@ -1,8 +1,12 @@
 package com.azavea.landsatutil
 
 import org.joda.time.DateTime
+import geotrellis.vector._
 
-case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage])
+case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
+  def mapImages(f: Seq[LandsatImage] => Seq[LandsatImage]): QueryResult =
+    QueryResult(metadata: QueryMetadata, f(images))
+}
 
 case class QueryMetadata(
   total: Int,
@@ -19,10 +23,10 @@ case class LandsatImage(
   aquisitionDate: DateTime,
   cloudPercentage: Double,
   thumbnailUrl: String,
-  lowerLeft: (Double, Double),
-  lowerRight: (Double, Double),
-  upperLeft: (Double, Double),
-  upperRight: (Double, Double),
+  lowerLeft: Point,
+  lowerRight: Point,
+  upperLeft: Point,
+  upperRight: Point,
   sceneStartTime: DateTime,
   sceneEndTime: DateTime,
   imageQuality: Int,
@@ -33,17 +37,14 @@ case class LandsatImage(
   receivingStation: String,
   dateUpdated: DateTime
 ) {
-  private def basePath = f"$path%03d/$row%03d/$sceneId"
-  def rootUri = s"s3://landsat-pds/L8/$basePath"
-  def bandUri(band: Int) = s"s3://landsat-pds/L8/$basePath/${sceneId}_B${band}.TIF"
-  def largeThumbnail = s"https://landsat-pds.s3.amazonaws.com/L8/$basePath/${sceneId}_thumb_large.jpg"
-  def smallThumbnail = s"https://landsat-pds.s3.amazonaws.com/L8/$basePath/${sceneId}_thumb_small.jpg"
+  def baseS3Path = f"L8/$path%03d/$row%03d/$sceneId"
+  def rootUri = s"s3://landsat-pds/$baseS3Path"
+  def bandUri(band: Int) = s"s3://landsat-pds/$baseS3Path/${sceneId}_B${band}.TIF"
+  def qaBandUri = s"s3://landsat-pds/$baseS3Path/${sceneId}_BQA.TIF"
+  def largeThumbnail = s"https://landsat-pds.s3.amazonaws.com/$baseS3Path/${sceneId}_thumb_large.jpg"
+  def smallThumbnail = s"https://landsat-pds.s3.amazonaws.com/$baseS3Path/${sceneId}_thumb_small.jpg"
+  def googleUrl = s"http://storage.googleapis.com/earthengine-public/landsat/${baseS3Path}.tar.bz"
 
-  def footprint: String = {
-    val ll = f"${lowerLeft._1}%0,5f,${lowerLeft._2}%0,5f"
-    val lr = f"${lowerRight._1}%0,5f,${lowerRight._2}%0,5f"
-    val ul = f"${upperLeft._1}%0,5f,${upperLeft._2}%0,5f"
-    val ur = f"${upperRight._1}%0,5f,${upperRight._2}%0,5f"
-    s"""{"type":"Polygon","coordinates":[[[$ll],[$lr],[$ur],[$ul],[$ll]]]}"""
-  }
+  def footprint: Polygon =
+    Polygon(Line(upperLeft, upperRight, lowerRight, lowerLeft, upperLeft))
 }

@@ -2,6 +2,7 @@ package com.azavea.landsatutil
 
 import spray.json._
 import com.github.nscala_time.time.Imports._
+import geotrellis.vector._
 
 object Json {
   def parseDate(s: String) =
@@ -85,10 +86,10 @@ object Json {
         aquisitionDate = parseDate(aquisitionDate),
         cloudPercentage = cloudPercentage.toDouble,
         thumbnailUrl = thumbnailUrl,
-        lowerLeft = (lowerLeftCornerLongitude.toDouble, lowerLeftCornerLatitude.toDouble),
-        lowerRight = (lowerRightCornerLongitude.toDouble, lowerRightCornerLatitude.toDouble),
-        upperLeft = (upperLeftCornerLongitude.toDouble, upperLeftCornerLatitude.toDouble),
-        upperRight = (upperRightCornerLongitude.toDouble, upperRightCornerLatitude.toDouble),
+        lowerLeft = Point(lowerLeftCornerLongitude.toDouble, lowerLeftCornerLatitude.toDouble),
+        lowerRight = Point(lowerRightCornerLongitude.toDouble, lowerRightCornerLatitude.toDouble),
+        upperLeft = Point(upperLeftCornerLongitude.toDouble, upperLeftCornerLatitude.toDouble),
+        upperRight = Point(upperRightCornerLongitude.toDouble, upperRightCornerLatitude.toDouble),
         sceneStartTime = parseTime(sceneStartTime),
         sceneEndTime = parseTime(sceneEndTime),
         imageQuality = imageQuality.toInt,

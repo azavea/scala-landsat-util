@@ -21,11 +21,21 @@ pomIncludeRepository := { _ => false }
 
 shellPrompt := { s => Project.extract(s).currentProject.id + " > " }
 
+resolvers += Resolver.bintrayRepo("azavea", "geotrellis")
+
 libraryDependencies ++= Seq(
   "io.spray"        %% "spray-json"    % "1.3.2",
   "io.spray"        %% "spray-client"  % "1.3.2",
   "io.spray"        %% "spray-httpx"   % "1.3.2",
   "com.typesafe.akka" %% "akka-actor"   % "2.3.9",
   "com.github.nscala-time" %% "nscala-time" % "1.6.0",
+  "com.azavea.geotrellis" %% "geotrellis-vector" % "0.10.0-97834e6",
+  "org.apache.logging.log4j" % "log4j" % "2.4.1",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.10.35",
   "org.scalatest"       %%  "scalatest"      % "2.2.0" % "test"
 )
+
+bintrayOrganization := Some("azavea")
+bintrayRepository := "gis"
+bintrayVcsUrl := Some("https://github.com/azavea/scala-landsat-util.git")
+bintrayPackageLabels := Seq("maps", "gis", "geographic", "data", "raster", "processing")
