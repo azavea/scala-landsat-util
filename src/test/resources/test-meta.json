@@ -1,0 +1,11 @@
+{
+  "credit": "This API is based on the openFDA's API https://github.com/FDA/openfda/tree/master/api ",
+  "author": "Development Seed",
+  "license": "http://creativecommons.org/publicdomain/zero/1.0/legalcode",
+  "last_updated": "2015-09-23",
+  "results": {
+    "skip": 0,
+    "limit": 200,
+    "total": 173
+  }
+}
