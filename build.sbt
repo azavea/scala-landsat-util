@@ -1,5 +1,5 @@
 name := "scala-landsat-util"
-version := "0.1.0"
+version := Version.landsatUtil
 scalaVersion := "2.10.5"
 crossScalaVersions := Seq("2.11.5", "2.10.5")
 description := "API client for Developmentseed's landsat-api"
@@ -29,13 +29,13 @@ libraryDependencies ++= Seq(
   "io.spray"        %% "spray-httpx"   % "1.3.2",
   "com.typesafe.akka" %% "akka-actor"   % "2.3.9",
   "com.github.nscala-time" %% "nscala-time" % "1.6.0",
-  "com.azavea.geotrellis" %% "geotrellis-vector" % "0.10.0-97834e6",
+  "com.azavea.geotrellis" %% "geotrellis-vector" % Version.geotrellis,
   "org.apache.logging.log4j" % "log4j" % "2.4.1",
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.10.35",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.9.34",
   "org.scalatest"       %%  "scalatest"      % "2.2.0" % "test"
 )
 
 bintrayOrganization := Some("azavea")
-bintrayRepository := "gis"
+bintrayRepository := "maven"
 bintrayVcsUrl := Some("https://github.com/azavea/scala-landsat-util.git")
-bintrayPackageLabels := Seq("maps", "gis", "geographic", "data", "raster", "processing")
+bintrayPackageLabels := Seq("scala", "landsat", "maps", "gis", "geographic", "data", "raster", "processing")

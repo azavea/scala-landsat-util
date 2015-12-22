@@ -1,0 +1,62 @@
+sudo: false
+
+env:
+  global:
+    - secure: "cI231yWG7ztz9ZrTtoNxihCUTsPwCAAP9gHGGLgaq3x8DoNE1bXDZIZeoo1rDWFeB0DMDbBsLOfHO8/wUIGi4I5tg7W4E2EyfLbkH+BSCjWjQQIAuIZ4ynjl8yuMIT1NyKFHkxKP+l51U4/P3qHwCGf6DckmgX+p2NGRG0Z2uJkY79Qr/50oBcE5M1Y0palpc0Q5W2LVzKiA4uGU1QmH9rcT12J7jPNYZgt+0N9eerLM+IT7PWWCa/VMcjlBzxSVtThTtO9KSybuUWxNs2HBdWn5Ae7FANaMiZpvSx7HJwjvx5LLpwaRzn6yJl1w2rubtiLfurXV2FE1VuTYR8cgZyVxo67YNSq9AiT0VMN5TNbGsYOU0sEPuHnr3iE4p6Il9WoWuiFjFhfqiXumZpC0kfz27Xw2Kc6xAMHJkkJBAxLpEMbIRsaWkpMo2ycJiqpjtBTVu7YZLh/m2uNaXbYg5rCJj3mmWAF26uwVaecjmvAHqdNcOPewrC1GZBTRW31OvOlvYkbTPI0yteBd3s2cRe4Xh4mb4OkNqIYJlaIXNTSFycXFSnsWKSXoz+YjLACqmBqvlvTaRblUsBtd5fLmBGHnI2n54OGHkdE2hrxpPZ7dHiMR2Bp6ACHQHwhHgi3xk20HThxad7f4POw+aHuT1A8zWcKb7eH/2OzTNzSupJQ="
+    - secure: "PmMhGhtuZpiBT1YKYc/9JDWIzQdspIGLcjpAZmysKieRMDtz39fzjzWONubTwEQ6ig9YAf0fRoccfj11/THug/jVeEdi0FoAH+xNhvZ5oSR66oBZn8BDLsO5Yg5tAoP1CAN0oFbTR/uaWHnBy26KifFayy2gVP0cj0YOiyEc/92npFx/LJVD1N4IU+1wfMQ3TAFEPSpsIAwVY0XZbyBeXevQjYuahlnmlW/1qv9rpME/kzY1gCrR5elQAF3yYwsiNUnUe5VGU8cOlBRWNrYgy+JrpwhyhBQSsncHvxFi+Ncrx/qBABICimboeTzzlzd+X8qzd7S12AISNQxsoP1lJV+g/vCHLRnBVc2PR8M+n+FkyZ+fNu0D6IE+pHr+4Tb3E0bibYSTm9MfMfSPaFu4FFYxlNDWAWq9bhFKAXVep9ypMBa6o66gkhE3d87JOqxQlw5w8NP9d77aQS288UR7rbzNPTmsDLUYZjQiNIjRwFYY64MFPexkF1JqlTibHSrtig/wFNPo5bwbMjCWqzByWuIMHRbECPaiZl+vRZauUvt5wx5kl9RNMVJuQ0YPUghoiX2lYloDGoRB//ILbbFHc/4U4NxU6LjE9zZb6k+l2UMRkx6hpzErG6eQkCMb7E9XxX3I8opRavKfFq8ISL+0O5BD3pUQNnOl6+1QRQ0FIcQ="
+
+language: scala
+
+jdk:
+- oraclejdk7
+- oraclejdk8
+
+scala:
+- 2.10.5
+- 2.11.5
+
+cache:
+  directories:
+  - $HOME/.ivy2
+  - $HOME/.sbt
+
+script:
+- ./buildall.sh
+
+notifications:
+  email:
+    recipients:
+    - lossyrob@gmail.com
+
+before_deploy:
+- export LSU_VERSION_SUFFIX="-${TRAVIS_COMMIT:0:7}"
+  on:
+    repo: azavea/scala-landsat-util
+    branch: master
+
+- export LSU_VERSION_SUFFIX="-${TRAVIS_TAG}"
+  on:
+    repo: azavea/scala-landsat-util
+    tags: true
+
+deploy:
+- provider: script
+  script: .travis/deploy.sh
+  skip_cleanup: true
+  on:
+    repo: azavea/scala-landsat-util
+    branch: master
+    jdk: oraclejdk7
+    scala: 2.10.5
+
+- provider: script
+  script: .travis/deploy.sh
+  skip_cleanup: true
+  on:
+    repo: azavea/scala-landsat-util
+    tags: true
+    jdk: oraclejdk7
+    scala: 2.10.5
+
+after_deploy:
+- rm -f "${HOME}/.bintray/.credentials"
