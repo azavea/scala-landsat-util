@@ -30,14 +30,6 @@ notifications:
 
 before_deploy:
 - export LSU_VERSION_SUFFIX="-${TRAVIS_COMMIT:0:7}"
-  on:
-    repo: azavea/scala-landsat-util
-    branch: master
-
-- export LSU_VERSION_SUFFIX="-${TRAVIS_TAG}"
-  on:
-    repo: azavea/scala-landsat-util
-    tags: true
 
 deploy:
 - provider: script
