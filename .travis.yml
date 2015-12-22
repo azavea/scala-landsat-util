@@ -48,9 +48,27 @@ deploy:
   skip_cleanup: true
   on:
     repo: azavea/scala-landsat-util
+    branch: master
+    jdk: oraclejdk7
+    scala: 2.11.5
+
+- provider: script
+  script: .travis/deploy.sh
+  skip_cleanup: true
+  on:
+    repo: azavea/scala-landsat-util
     tags: true
     jdk: oraclejdk7
     scala: 2.10.5
+
+- provider: script
+  script: .travis/deploy.sh
+  skip_cleanup: true
+  on:
+    repo: azavea/scala-landsat-util
+    tags: true
+    jdk: oraclejdk7
+    scala: 2.11.5
 
 after_deploy:
 - rm -f "${HOME}/.bintray/.credentials"
