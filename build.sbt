@@ -32,6 +32,7 @@ libraryDependencies ++= Seq(
   "com.azavea.geotrellis" %% "geotrellis-vector" % Version.geotrellis,
   "org.apache.logging.log4j" % "log4j" % "2.4.1",
   "com.amazonaws" % "aws-java-sdk-s3" % "1.9.34",
+  "com.chuusai" %% "shapeless" % "2.3.0",
   "org.scalatest"       %%  "scalatest"      % "2.2.0" % "test"
 )
 
