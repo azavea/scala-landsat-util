@@ -1,5 +1,6 @@
 package com.azavea.landsatutil.mtl
 
+import com.azavea.landsatutil.Resource
 import org.scalatest._
 import java.io.FileReader
 import org.joda.time._

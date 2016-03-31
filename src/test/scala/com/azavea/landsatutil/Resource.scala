@@ -1,4 +1,4 @@
-package com.azavea.landsatutil.mtl
+package com.azavea.landsatutil
 
 import scala.io.Source
 
