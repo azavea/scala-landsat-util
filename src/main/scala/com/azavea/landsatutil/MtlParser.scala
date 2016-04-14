@@ -1,19 +1,20 @@
-package com.azavea.landsatutil.mtl
+package com.azavea.landsatutil
 
-import org.joda.time.{ DateTime, LocalDate }
+import org.joda.time.{ DateTime, LocalDate, LocalTime }
 import scala.util.parsing.combinator._
 import java.io._
 
-
 class MtlParser extends JavaTokenParsers {
+  import MtlParser._
 
-  def date : Parser[Any] =
+  def date : Parser[LocalDate] =
     """\d{4}-\d{2}-\d{2}""".r map LocalDate.parse
 
-  def dateTime: Parser[Any] =
-    """\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z""".r map { dt =>
-      DateTime.parse(dt)
-    }
+  def time: Parser[LocalTime] =
+    timeRx map { case timeRx(timeString) => LocalTime.parse(timeString) }
+
+  def dateTime: Parser[DateTime] =
+    """\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z""".r map DateTime.parse
 
   def float: Parser[Double] =
     ("""[-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?""".r | """[-+]?[0-9]*\.[0-9]+""".r) map (_.toDouble)
@@ -25,7 +26,7 @@ class MtlParser extends JavaTokenParsers {
     stringLiteral map { s => s.slice(1, s.length - 1) }
 
   def value : Parser[Any] =
-    dateTime | date | float | int | str
+    dateTime | date | time | float | int | str
 
   def field: Parser[(String, Any)] =
     ident ~ "=" ~ value map { case (name ~ _ ~ value) => (name, value) }
@@ -63,16 +64,10 @@ class MtlParser extends JavaTokenParsers {
 }
 
 object MtlParser {
-  def parseFile(file: String): Option[MTL] = {
-    val parser = new MtlParser()
-    parser(new FileReader(file))
-  }
+  val timeRx = """"?(\d{2}:\d{2}:\d{2}.\d+)Z"?""".r
 
-  def parseStream(stream: InputStream): Option[MTL] = {
+  def apply(input: Reader): Option[MTL] = {
     val parser = new MtlParser()
-    try {
-      val reader = new BufferedReader(new InputStreamReader(stream))
-      parser(reader)
-    } finally { stream.close }
+    parser(input)
   }
 }

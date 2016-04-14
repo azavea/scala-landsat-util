@@ -10,8 +10,6 @@ object Version {
     }
   }
 
-  val geotrellis  = "0.10.0-9d08114"
-  val scala       = "2.10.5"
-  lazy val hadoop      = "2.2.0"
-  lazy val spark       = "1.4.1"
+  val geotrellis  = "0.10.0-RC4"
+  val scala       = "2.10.6"
 }
