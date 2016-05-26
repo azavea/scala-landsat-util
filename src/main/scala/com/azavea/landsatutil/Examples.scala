@@ -25,10 +25,8 @@ object Examples {
         .intersects(philly)
         .collect()
 
-    val s3Client = S3Client()
     val filtered =
-      images
-        .filter(s3Client.imageExists(_))
+      images.filter(_.imageExistsS3())
 
     filtered
       .foreach { image =>

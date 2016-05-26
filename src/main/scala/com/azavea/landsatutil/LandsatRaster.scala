@@ -10,22 +10,26 @@ import org.apache.commons.compress.archivers.tar._
 import java.io._
 import java.net.{ URL, URI }
 
-object Fetch {
-  def fromTar(url: URL, bandsWanted: Seq[String]): (MTL, ProjectedRaster[MultibandTile]) = {
-    val stream = url.openStream
-    try {
-      fromTar(stream, bandsWanted)
-    } finally { stream.close }
+case class LandsatRaster(
+  mtl: MTL,
+  bands: Seq[String],
+  raster: ProjectedRaster[MultibandTile]
+) {
+  def apply(bandName: String): ProjectedRaster[Tile] = {
+    val bandIndex = bands.indexOf(bandName)
+    require(bandIndex > -1, "$bandName not found")
+    ProjectedRaster(raster.tile.bands(bandIndex), raster.extent, raster.crs)
   }
 
-  def fromTar(file: File, bandsWanted: Seq[String]): (MTL, ProjectedRaster[MultibandTile]) = {
-    val stream = new FileInputStream(file)
-    try {
-      fromTar(stream, bandsWanted)
-    } finally { stream.close }
+  def apply(bandIndex: Int): ProjectedRaster[Tile] = {
+    require(bandIndex > -1 && bandIndex < bands.length, "$bandIndex out of bounds")
+    ProjectedRaster(raster.tile.bands(bandIndex), raster.extent, raster.crs)
   }
+}
 
-  def fromTar(stream: InputStream, bandsWanted: Seq[String]): (MTL, ProjectedRaster[MultibandTile]) = {
+object LandsatRaster {
+  /** Extract Landsat bands from tar.gz input stream */
+  def fromTarBz(stream: InputStream, bandsWanted: Seq[String]): LandsatRaster = {
     val buffStream = new BufferedInputStream(stream)
     val bzStream = new BZip2CompressorInputStream(buffStream, true)
     val tarStream = new TarArchiveInputStream(bzStream)
@@ -53,31 +57,14 @@ object Fetch {
     val tiles = for (bandName <- bandsWanted) yield rs(s"B$bandName").tile
     val extent = rs.head._2.extent
     val crs = rs.head._2.crs
-    (mtl, ProjectedRaster(MultibandTile(tiles), extent, crs))
+    LandsatRaster(mtl, bandsWanted, ProjectedRaster(MultibandTile(tiles), extent, crs))
   }
 
-  def fromS3(image: LandsatImage, bandsWanted: Seq[String], awsClient: AmazonS3Client): ProjectedRaster[MultibandTile] = {
-    val tifs =
-      for (band <- bandsWanted) yield {
-        val uri = new URI(image.bandUri(band))
-        val bucket = uri.getAuthority
-        val prefix = uri.getPath.drop(1)
-        val bytes = IOUtils.toByteArray(awsClient.getObject(bucket, prefix).getObjectContent)
-        GeoTiffReader.readSingleband(bytes)
-      }
-    val tiles = tifs.map(_.tile).toArray
-    val extent = tifs.head.extent
-    val crs = tifs.head.crs
-    ProjectedRaster(MultibandTile(tiles), extent, crs)
-  }
-
-  def mtl(image: LandsatImage, awsClient: AmazonS3Client): MTL = {
-    val uri = new URI(image.mtlUri)
-    val bucket = uri.getAuthority
-    val prefix = uri.getPath.drop(1)
-    val stream = awsClient.getObject(bucket, prefix).getObjectContent
+  /** Extract Landsat bands from tar.gz file */
+  def fromTarBz(file: File, bandsWanted: Seq[String]): LandsatRaster = {
+    val stream = new FileInputStream(file)
     try {
-      MTL.fromStream(stream)
+      fromTarBz(stream, bandsWanted)
     } finally { stream.close }
   }
 }

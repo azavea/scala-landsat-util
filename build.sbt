@@ -39,7 +39,6 @@ libraryDependencies ++= Seq(
   "org.scalatest"       %%  "scalatest"      % "2.2.0" % "test"
 )
 
-// "org.apache.logging.log4j" % "log4j" % "2.4.1",
 bintrayOrganization := Some("azavea")
 bintrayRepository := "maven"
 bintrayVcsUrl := Some("https://github.com/azavea/scala-landsat-util.git")
