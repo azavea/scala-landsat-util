@@ -1,4 +1,4 @@
-package com.azavea.landsatutil.mtl
+package com.azavea.landsatutil
 
 import com.azavea.landsatutil.Resource
 import org.scalatest._
@@ -6,7 +6,7 @@ import java.io.FileReader
 import org.joda.time._
 
 class MtlSpec extends FunSpec with Matchers {
-  val m = MtlParser.parseStream(Resource.stream("/MTL.txt")).get
+  val m = MTL.fromStream(Resource.stream("/MTL.txt"))
 
   it("should produce None given wrong type"){
     m.metadataFileInfo.fields.contains("STATION_ID") should be (true)

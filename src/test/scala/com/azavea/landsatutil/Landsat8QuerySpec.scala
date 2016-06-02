@@ -3,7 +3,7 @@ package com.azavea.landsatutil
 import org.scalatest._
 import com.github.nscala_time.time.Imports._
 import geotrellis.vector._
-import geotrellis.vector.io.json._
+import geotrellis.vector.io._
 
 class Landsat8QuerySpec extends FunSpec with Matchers {
 
