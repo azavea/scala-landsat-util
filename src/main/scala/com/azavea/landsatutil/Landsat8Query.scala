@@ -9,6 +9,13 @@ import geotrellis.vector._
 import geotrellis.vector.io.json._
 import Json._
 
+case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
+  def mapImages(f: Seq[LandsatImage] => Seq[LandsatImage]): QueryResult =
+    QueryResult(metadata: QueryMetadata, f(images))
+}
+
+case class QueryMetadata(total: Int, skip: Int, limit: Int, lastUpdated: DateTime)
+
 object Landsat8Query {
   val conf = ConfigFactory.load()
   val API_URL = conf.getString("landsatutil.apiUrl")
@@ -49,7 +56,7 @@ class Landsat8Query() {
   def intersects(x: Double, y: Double): Landsat8Query =
     intersects(x, y, x, y)
 
-  def intersects(xmin: Double, ymin: Double, xmax: Double, ymax: Double): Landsat8Query = 
+  def intersects(xmin: Double, ymin: Double, xmax: Double, ymax: Double): Landsat8Query =
     intersects(Extent(xmin, ymin, xmax, ymax))
 
   def intersects(polygon: Polygon): Landsat8Query = {

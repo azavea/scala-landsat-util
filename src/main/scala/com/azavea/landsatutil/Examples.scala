@@ -6,7 +6,8 @@ import scala.collection.mutable
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import geotrellis.vector._
-import geotrellis.vector.io.json._
+import geotrellis.vector.io._
+import geotrellis.vector.io.json.GeoJson
 import Json._
 
 object Examples {
@@ -24,13 +25,11 @@ object Examples {
         .intersects(philly)
         .collect()
 
-    val s3Client = S3Client()
     val filtered =
-      images
-        .filter(s3Client.imageExists(_))
+      images.filter(_.imageExistsS3())
 
     filtered
-      .foreach { image => 
+      .foreach { image =>
         println(s"${image.sceneId} - ${image.cloudPercentage}% clouds")
         println(s"\tAquisition Date: ${image.aquisitionDate}")
         println(s"\tUSGS Thumbnail URL: ${image.thumbnailUrl}")

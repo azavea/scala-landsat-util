@@ -16,17 +16,5 @@ object S3Client {
     config
   }
 
-  def apply(): S3Client =
-    new S3Client(new AmazonS3Client(new DefaultAWSCredentialsProviderChain(), defaultConfiguration))
-}
-
-class S3Client(val awsClient: AmazonS3Client) {
-  def imageExists(image: LandsatImage): Boolean =
-    exists("landsat-pds", s"${image.baseS3Path}/")
-
-  def exists(bucket: String, key: String): Boolean = {
-    val res = awsClient.listObjects(new ListObjectsRequest(bucket, key, null, null, null))
-    import scala.collection.JavaConverters._
-    !(res.getObjectSummaries().isEmpty)
-  }
+  @transient lazy val default = new AmazonS3Client(new DefaultAWSCredentialsProviderChain(), defaultConfiguration)
 }
