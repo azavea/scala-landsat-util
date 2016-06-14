@@ -17,7 +17,7 @@ object IOHook {
   /** Cache the InputStream bytes to a local file and read from disk for all future requests */
   def localCache(cacheDir: File) = new IOHook {
     def apply(image: LandsatImage, band: String, is: => InputStream): InputStream = {
-      val cacheFile = new File(cacheDir, "${image.baseS3Path}/$band")
+      val cacheFile = new File(cacheDir, s"${image.baseS3Path}/$band")
       if (cacheFile.exists) {
         new FileInputStream(cacheFile)
       } else {
