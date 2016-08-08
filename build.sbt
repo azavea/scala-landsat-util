@@ -39,6 +39,14 @@ libraryDependencies ++= Seq(
   "org.scalatest"       %%  "scalatest"      % "2.2.0" % "test"
 )
 
+// Further deps depending on Scala version
+libraryDependencies <++= scalaVersion {
+  case v if v.startsWith("2.10") => Seq()
+  case v if v.startsWith("2.11") => Seq(
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
+  )
+}
+
 bintrayOrganization := Some("azavea")
 bintrayRepository := "maven"
 bintrayVcsUrl := Some("https://github.com/azavea/scala-landsat-util.git")
