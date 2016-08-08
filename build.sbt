@@ -1,7 +1,7 @@
 name := "scala-landsat-util"
 version := Version.landsatUtil
-scalaVersion := "2.10.5"
-crossScalaVersions := Seq("2.11.5", "2.10.5")
+scalaVersion := "2.10.6"
+crossScalaVersions := Seq("2.11.8", "2.10.6")
 description := "API client for Developmentseed's landsat-api"
 organization := "com.azavea"
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
