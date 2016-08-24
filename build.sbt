@@ -1,7 +1,7 @@
 name := "scala-landsat-util"
 version := Version.landsatUtil
-scalaVersion := "2.10.5"
-crossScalaVersions := Seq("2.11.5", "2.10.5")
+scalaVersion := "2.10.6"
+crossScalaVersions := Seq("2.11.8", "2.10.6")
 description := "API client for Developmentseed's landsat-api"
 organization := "com.azavea"
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
@@ -38,6 +38,14 @@ libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.0",
   "org.scalatest"       %%  "scalatest"      % "2.2.0" % "test"
 )
+
+// Further deps depending on Scala version
+libraryDependencies <++= scalaVersion {
+  case v if v.startsWith("2.10") => Seq()
+  case v if v.startsWith("2.11") => Seq(
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
+  )
+}
 
 bintrayOrganization := Some("azavea")
 bintrayRepository := "maven"
