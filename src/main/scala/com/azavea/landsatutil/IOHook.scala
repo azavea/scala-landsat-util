@@ -26,7 +26,7 @@ object IOHook {
         try {
           IOUtils.copy(is, out)
           new FileInputStream(cacheFile)
-        } finally { out.close; is.close }
+        } finally { out.close(); is.close() }
       }
     }
   }

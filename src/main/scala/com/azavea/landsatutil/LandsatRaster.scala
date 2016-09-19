@@ -2,13 +2,9 @@ package com.azavea.landsatutil
 
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.reader._
-import com.amazonaws.services.s3._
-import org.apache.commons.io._
 import org.apache.commons.compress.compressors.bzip2._
-import org.apache.commons.compress.archivers._
 import org.apache.commons.compress.archivers.tar._
 import java.io._
-import java.net.{ URL, URI }
 
 case class LandsatRaster(
   mtl: MTL,
@@ -65,6 +61,6 @@ object LandsatRaster {
     val stream = new FileInputStream(file)
     try {
       fromTarBz(stream, bandsWanted)
-    } finally { stream.close }
+    } finally { stream.close() }
   }
 }
