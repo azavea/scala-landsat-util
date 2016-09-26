@@ -2,7 +2,6 @@ package com.azavea.landsatutil
 
 import com.amazonaws.services.s3._
 import com.amazonaws.auth._
-import com.amazonaws.services.s3.model._
 import com.amazonaws.retry.PredefinedRetryPolicies
 
 object S3Client {

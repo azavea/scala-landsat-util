@@ -1,7 +1,6 @@
 name := "scala-landsat-util"
 version := Version.landsatUtil
-scalaVersion := "2.10.6"
-crossScalaVersions := Seq("2.11.8", "2.10.6")
+scalaVersion := "2.11.8"
 description := "API client for Developmentseed's landsat-api"
 organization := "com.azavea"
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
@@ -27,25 +26,18 @@ libraryDependencies ++= Seq(
   "io.spray"        %% "spray-json"    % "1.3.2",
   "io.spray"        %% "spray-client"  % "1.3.2",
   "io.spray"        %% "spray-httpx"   % "1.3.2",
-  "com.typesafe.akka" %% "akka-actor"   % "2.3.9",
+  "com.typesafe.akka"      %% "akka-actor"   % "2.3.15",
   "com.github.nscala-time" %% "nscala-time" % "2.12.0",
-  "com.azavea.geotrellis" %% "geotrellis-vector" % Version.geotrellis % "provided",
-  "com.azavea.geotrellis" %% "geotrellis-raster" % Version.geotrellis % "provided",
+  "com.azavea.geotrellis"  %% "geotrellis-vector" % Version.geotrellis % "provided",
+  "com.azavea.geotrellis"  %% "geotrellis-raster" % Version.geotrellis % "provided",
   "org.apache.commons" % "commons-compress" % "1.8",
   "org.apache.commons" % "commons-io" % "1.3.2",
-  "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
   "com.amazonaws" % "aws-java-sdk-s3" % "1.9.34",
-  "com.chuusai" %% "shapeless" % "2.3.0",
-  "org.scalatest"       %%  "scalatest"      % "2.2.0" % "test"
+  "com.chuusai"   %% "shapeless" % "2.3.0",
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
+  "org.scalatest"          %%  "scalatest"     % "2.2.0" % "test"
 )
-
-// Further deps depending on Scala version
-libraryDependencies <++= scalaVersion {
-  case v if v.startsWith("2.10") => Seq()
-  case v if v.startsWith("2.11") => Seq(
-    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
-  )
-}
 
 bintrayOrganization := Some("azavea")
 bintrayRepository := "maven"

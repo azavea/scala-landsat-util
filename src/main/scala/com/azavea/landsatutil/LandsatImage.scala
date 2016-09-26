@@ -8,7 +8,7 @@ import com.amazonaws.auth._
 import com.amazonaws.services.s3.model._
 import org.apache.commons.io.IOUtils
 import org.joda.time.DateTime
-
+import com.typesafe.scalalogging.LazyLogging
 import java.net._
 
 case class LandsatImage(
@@ -32,7 +32,7 @@ case class LandsatImage(
   sensor: String,
   receivingStation: String,
   dateUpdated: DateTime
-) extends Logging {
+) extends LazyLogging {
   def baseS3Path = f"L8/$path%03d/$row%03d/$sceneId"
   def rootUri = s"s3://landsat-pds/$baseS3Path"
   def bandUri(band: Int) = s"s3://landsat-pds/$baseS3Path/${sceneId}_B${band}.TIF"
@@ -56,7 +56,7 @@ case class LandsatImage(
     import scala.collection.JavaConverters._
     s3client
       .listObjects(new ListObjectsRequest("landsat-pds", baseS3Path, null, null, null))
-      .getObjectSummaries()
+      .getObjectSummaries
       .size > 0
   }
 
@@ -91,7 +91,7 @@ case class LandsatImage(
     val stream = hook(this, "MTL", s3client.getObject(bucket, prefix).getObjectContent)
     try {
       MTL.fromStream(stream)
-    } finally { stream.close }
+    } finally { stream.close() }
   }
 
   def getFromS3(

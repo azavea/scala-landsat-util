@@ -1,12 +1,9 @@
 package com.azavea.landsatutil
 
 import com.github.nscala_time.time.Imports._
-import spray.json._
-import scala.collection.mutable
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import geotrellis.vector._
-import geotrellis.vector.io.json._
 import Json._
 
 case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
@@ -31,7 +28,7 @@ class Landsat8Query() {
   private var _cloudCoverageMax = 100.0
   private var _startDate = "2013-02-11"
   private var _endDate = formatDate(DateTime.now)
-  private var _filterFunction: Function1[LandsatImage, Boolean] = { x => true }
+  private var _filterFunction: LandsatImage => Boolean = { x => true }
 
   private def aquisitionDate = s"acquisitionDate:[${_startDate}+TO+${_endDate}]"
 

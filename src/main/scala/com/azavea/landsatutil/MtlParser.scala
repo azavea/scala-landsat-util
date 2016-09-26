@@ -43,10 +43,10 @@ class MtlParser extends JavaTokenParsers {
     }
 
   def mtlFile: Parser[Map[String, MtlGroup]] =
-    (groupStart ~ (mtlGroup*) <~ groupEnd map { case name ~ groups =>
+    groupStart ~ (mtlGroup*) <~ groupEnd map { case name ~ groups =>
       // discaring the root group name
       (for (group <- groups) yield (group.name, group)).toMap
-    })
+    }
 
   def apply(input: Reader) = {
     val res = parseAll(mtlFile <~ "END", input)

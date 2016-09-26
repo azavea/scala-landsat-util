@@ -5,7 +5,7 @@ import shapeless.syntax.typeable._
 
 import java.io._
 
-case class MtlGroup(val name: String, val fields: Map[String, Any]) {
+case class MtlGroup(name: String, fields: Map[String, Any]) {
   def apply[T: Typeable](fieldName: String): Option[T] = {
     // seems weird, but safely casting primitive and references is actually tricky
     fields.get(fieldName).flatMap(_.cast[T])
