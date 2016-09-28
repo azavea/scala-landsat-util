@@ -1,12 +1,13 @@
 package com.azavea.landsatutil
 
-import java.time.format.DateTimeFormatter
-
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import geotrellis.vector._
 import Json._
+
 import java.time.{ZoneOffset, ZonedDateTime}
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
   def mapImages(f: Seq[LandsatImage] => Seq[LandsatImage]): QueryResult =
@@ -35,7 +36,10 @@ class Landsat8Query() {
   private def aquisitionDate = s"acquisitionDate:[${_startDate}+TO+${_endDate}]"
 
   private def formatDate(dt: ZonedDateTime): String =
-    DateTimeFormatter.ofPattern("YYYY-MM-dd").withZone(ZoneOffset.UTC).format(dt)
+    DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC).format(dt)
+
+  private def doubleString(double: Double, fractionDigits: Int): String =
+    s"%.${fractionDigits}f".formatLocal(Locale.ENGLISH, double)
 
   def withStartDate(startDate: ZonedDateTime): Landsat8Query = {
     _startDate = formatDate(startDate)
@@ -63,10 +67,10 @@ class Landsat8Query() {
 
     _boundsQuery =
       Array(
-        f"lowerLeftCornerLongitude:[-1000+TO+${extent.xmax}%0,6f]",
-        f"upperLeftCornerLatitude:[${extent.ymin}%0,6f+TO+1000]",
-        f"lowerRightCornerLatitude:[-1000+TO+${extent.ymax}%0,6f]",
-        f"upperRightCornerLongitude:[${extent.xmin}%0,6f+TO+1000]"
+        s"lowerLeftCornerLongitude:[-1000+TO+${doubleString(extent.xmax, 6)}]",
+        s"upperLeftCornerLatitude:[${doubleString(extent.ymin, 6)}+TO+1000]",
+        s"lowerRightCornerLatitude:[-1000+TO+${doubleString(extent.ymax, 6)}]",
+        s"upperRightCornerLongitude:[${doubleString(extent.xmin, 6)}+TO+1000]"
       ).mkString("+AND+")
 
     _filterFunction = { image =>
@@ -87,10 +91,10 @@ class Landsat8Query() {
 
     _boundsQuery =
       Array(
-        f"lowerLeftCornerLongitude:[-1000+TO+${extent.xmin}%0,6f]",
-        f"upperLeftCornerLatitude:[${extent.ymax}%0,6f+TO+1000]",
-        f"lowerRightCornerLatitude:[-1000+TO+${extent.ymin}%0,6f]",
-        f"upperRightCornerLongitude:[${extent.xmax}%0,6f+TO+1000]"
+        s"lowerLeftCornerLongitude:[-1000+TO+${doubleString(extent.xmin, 6)}]",
+        s"upperLeftCornerLatitude:[${doubleString(extent.ymax, 6)}+TO+1000]",
+        s"lowerRightCornerLatitude:[-1000+TO+${doubleString(extent.ymin, 6)}]",
+        s"upperRightCornerLongitude:[${doubleString(extent.xmax, 6)}+TO+1000]"
       ).mkString("+AND+")
 
     _filterFunction = { image =>
@@ -112,9 +116,9 @@ class Landsat8Query() {
   def searchTerms =
     Array(
       _boundsQuery,
-      f"cloudCoverFull:[${_cloudCoverageMin}%0,2f+TO+${_cloudCoverageMax}%0,2f]",
+      s"cloudCoverFull:[${doubleString(_cloudCoverageMin, 2)}+TO+${doubleString(_cloudCoverageMax, 2)}]",
       aquisitionDate
-    ).mkString("+AND+")
+    ).filter(!_.isEmpty).mkString("+AND+")
 
   def execute(limit: Int = 1000, skip: Int = 0)(implicit timeout: scala.concurrent.duration.Duration): Option[QueryResult] = {
     val search = s"search=$searchTerms&limit=$limit&skip=$skip"
