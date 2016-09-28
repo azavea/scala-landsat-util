@@ -1,9 +1,10 @@
 package com.azavea.landsatutil
 
 import org.scalatest._
-import com.github.nscala_time.time.Imports._
 import geotrellis.vector._
 import geotrellis.vector.io._
+
+import java.time.{ZonedDateTime, ZoneOffset}
 
 class Landsat8QuerySpec extends FunSpec with Matchers {
 
@@ -12,8 +13,8 @@ class Landsat8QuerySpec extends FunSpec with Matchers {
       val philly = Resource.string("/philly.json").parseGeoJson[Polygon]
       val images =
         Landsat8Query()
-          .withStartDate(new DateTime(2015, 8, 10, 0, 0, 0))
-          .withEndDate(new DateTime(2015, 8, 10, 0, 0, 0))
+          .withStartDate(ZonedDateTime.of(2015, 8, 10, 0, 0, 0, 0, ZoneOffset.UTC))
+          .withEndDate(ZonedDateTime.of(2015, 8, 10, 0, 0, 0, 0, ZoneOffset.UTC))
           .contains(philly)
           .collect()
 

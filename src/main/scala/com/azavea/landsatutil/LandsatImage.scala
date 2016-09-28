@@ -7,31 +7,32 @@ import com.amazonaws.services.s3._
 import com.amazonaws.auth._
 import com.amazonaws.services.s3.model._
 import org.apache.commons.io.IOUtils
-import org.joda.time.DateTime
 import com.typesafe.scalalogging.LazyLogging
+
 import java.net._
+import java.time.{ZonedDateTime, ZoneOffset}
 
 case class LandsatImage(
   sceneId: String,
   satellite: String,
   row: Int,
   path: Int,
-  aquisitionDate: DateTime,
+  aquisitionDate: ZonedDateTime,
   cloudPercentage: Double,
   thumbnailUrl: String,
   lowerLeft: Point,
   lowerRight: Point,
   upperLeft: Point,
   upperRight: Point,
-  sceneStartTime: DateTime,
-  sceneEndTime: DateTime,
+  sceneStartTime: ZonedDateTime,
+  sceneEndTime: ZonedDateTime,
   imageQuality: Int,
   sunAzmith: Double,
   sunElevation: Double,
   dayTime: Boolean,
   sensor: String,
   receivingStation: String,
-  dateUpdated: DateTime
+  dateUpdated: ZonedDateTime
 ) extends LazyLogging {
   def baseS3Path = f"L8/$path%03d/$row%03d/$sceneId"
   def rootUri = s"s3://landsat-pds/$baseS3Path"

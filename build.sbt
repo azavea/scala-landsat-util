@@ -26,13 +26,12 @@ libraryDependencies ++= Seq(
   "io.spray"        %% "spray-json"    % "1.3.2",
   "io.spray"        %% "spray-client"  % "1.3.2",
   "io.spray"        %% "spray-httpx"   % "1.3.2",
-  "com.typesafe.akka"      %% "akka-actor"   % "2.3.15",
-  "com.github.nscala-time" %% "nscala-time" % "2.12.0",
+  "com.typesafe.akka"      %% "akka-actor"   % "2.4.10",
   "com.azavea.geotrellis"  %% "geotrellis-vector" % Version.geotrellis % "provided",
   "com.azavea.geotrellis"  %% "geotrellis-raster" % Version.geotrellis % "provided",
   "org.apache.commons" % "commons-compress" % "1.8",
   "org.apache.commons" % "commons-io" % "1.3.2",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
   "com.amazonaws" % "aws-java-sdk-s3" % "1.9.34",
   "com.chuusai"   %% "shapeless" % "2.3.0",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
@@ -51,5 +50,4 @@ import geotrellis.vector._
 import geotrellis.vector.io._
 import geotrellis.vector.io.json.GeoJson
 import geotrellis.raster._
-import com.github.nscala_time.time.Imports._
 """

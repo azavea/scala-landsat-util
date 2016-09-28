@@ -10,7 +10,7 @@ env:
 language: scala
 
 jdk:
-- oraclejdk7
+- openjdk8
 - oraclejdk8
 
 scala:

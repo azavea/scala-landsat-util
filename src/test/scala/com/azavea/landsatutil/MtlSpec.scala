@@ -1,9 +1,8 @@
 package com.azavea.landsatutil
 
-import com.azavea.landsatutil.Resource
+import java.time.LocalDate
+
 import org.scalatest._
-import java.io.FileReader
-import org.joda.time._
 
 class MtlSpec extends FunSpec with Matchers {
   val m = MTL.fromStream(Resource.stream("/MTL.txt"))
@@ -29,6 +28,6 @@ class MtlSpec extends FunSpec with Matchers {
 
   it("should be able to access LocalDate field"){
     info(m.group("PRODUCT_METADATA").fields("DATE_ACQUIRED").getClass.toString)
-    m.productMetadata[LocalDate]("DATE_ACQUIRED") should be (Some(new LocalDate(2015,8,10)))
+    m.productMetadata[LocalDate]("DATE_ACQUIRED") should be (Some(LocalDate.of(2015,8,10)))
   }
 }
