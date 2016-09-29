@@ -161,7 +161,7 @@ class Landsat8Query() {
         // Not found
         Seq()
     } finally {
-      system.terminate()
+      system.shutdown()
     }
 
   }

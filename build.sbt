@@ -1,6 +1,6 @@
 name := "scala-landsat-util"
 version := Version.landsatUtil
-scalaVersion := "2.11.8"
+scalaVersion := Version.scala
 description := "API client for Developmentseed's landsat-api"
 organization := "com.azavea"
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
@@ -24,9 +24,9 @@ resolvers += Resolver.bintrayRepo("azavea", "geotrellis")
 
 libraryDependencies ++= Seq(
   "io.spray"        %% "spray-json"    % "1.3.2",
-  "io.spray"        %% "spray-client"  % "1.3.2",
-  "io.spray"        %% "spray-httpx"   % "1.3.2",
-  "com.typesafe.akka"      %% "akka-actor"   % "2.4.10",
+  "io.spray"        %% "spray-client"  % "1.3.3",
+  "io.spray"        %% "spray-httpx"   % "1.3.3",
+  "com.typesafe.akka"      %% "akka-actor"   % "2.3.15",
   "com.azavea.geotrellis"  %% "geotrellis-vector" % Version.geotrellis % "provided",
   "com.azavea.geotrellis"  %% "geotrellis-raster" % Version.geotrellis % "provided",
   "org.apache.commons" % "commons-compress" % "1.8",
@@ -35,7 +35,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-s3" % "1.9.34",
   "com.chuusai"   %% "shapeless" % "2.3.0",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
-  "org.scalatest"          %%  "scalatest"     % "2.2.0" % "test"
+  "org.scalatest"          %%  "scalatest"     % "3.0.0" % "test"
 )
 
 bintrayOrganization := Some("azavea")

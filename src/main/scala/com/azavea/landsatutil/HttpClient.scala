@@ -16,7 +16,7 @@ object HttpClient {
     try {
       get(url, system)
     } finally {
-      system.terminate()
+      system.shutdown()
     }
   }
 

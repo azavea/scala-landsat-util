@@ -10,6 +10,6 @@ object Version {
     }
   }
 
-  val geotrellis  = "0.10.2"
-  val scala       = "2.10.6"
+  val geotrellis  = "1.0.0-SNAPSHOT"
+  val scala       = "2.11.8"
 }
