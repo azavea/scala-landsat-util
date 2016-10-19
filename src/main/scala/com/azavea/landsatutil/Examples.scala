@@ -1,14 +1,11 @@
 package com.azavea.landsatutil
 
-import com.github.nscala_time.time.Imports._
-import spray.json._
-import scala.collection.mutable
-import akka.actor.ActorSystem
-import com.typesafe.config.ConfigFactory
 import geotrellis.vector._
 import geotrellis.vector.io._
 import geotrellis.vector.io.json.GeoJson
 import Json._
+
+import java.time.{ZonedDateTime, ZoneOffset}
 
 object Examples {
   def main(args: Array[String]): Unit =
@@ -19,8 +16,8 @@ object Examples {
 
     val images =
       Landsat8Query()
-        .withStartDate(new DateTime(2012, 1, 12, 0, 0, 0))
-        .withEndDate(new DateTime(2015, 11, 5, 0, 0, 0))
+        .withStartDate(ZonedDateTime.of(2012, 1, 12, 0, 0, 0, 0, ZoneOffset.UTC))
+        .withEndDate(ZonedDateTime.of(2015, 11, 5, 0, 0, 0, 0, ZoneOffset.UTC))
         .withMaxCloudCoverage(80.0)
         .intersects(philly)
         .collect()

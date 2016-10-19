@@ -1,8 +1,9 @@
 package com.azavea.landsatutil
 
-import org.joda.time.{ DateTime, LocalDate, LocalTime }
 import scala.util.parsing.combinator._
 import java.io._
+
+import java.time.{ZonedDateTime, LocalDate, LocalTime, ZoneOffset}
 
 class MtlParser extends JavaTokenParsers {
   import MtlParser._
@@ -13,8 +14,8 @@ class MtlParser extends JavaTokenParsers {
   def time: Parser[LocalTime] =
     timeRx map { case timeRx(timeString) => LocalTime.parse(timeString) }
 
-  def dateTime: Parser[DateTime] =
-    """\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z""".r map DateTime.parse
+  def dateTime: Parser[ZonedDateTime] =
+    """\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z""".r map ZonedDateTime.parse
 
   def float: Parser[Double] =
     ("""[-+]?[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?""".r | """[-+]?[0-9]*\.[0-9]+""".r) map (_.toDouble)

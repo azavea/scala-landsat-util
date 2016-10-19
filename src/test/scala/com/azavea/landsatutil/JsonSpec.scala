@@ -1,7 +1,6 @@
 package com.azavea.landsatutil
 
 import org.scalatest._
-import com.github.nscala_time.time.Imports._
 import spray.json._
 
 import Json._

@@ -1,18 +1,20 @@
 package com.azavea.landsatutil
 
-import java.util.Locale
-import com.github.nscala_time.time.Imports._
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import geotrellis.vector._
 import Json._
+
+import java.time.{ZoneOffset, ZonedDateTime}
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
   def mapImages(f: Seq[LandsatImage] => Seq[LandsatImage]): QueryResult =
     QueryResult(metadata: QueryMetadata, f(images))
 }
 
-case class QueryMetadata(total: Int, skip: Int, limit: Int, lastUpdated: DateTime)
+case class QueryMetadata(total: Int, skip: Int, limit: Int, lastUpdated: ZonedDateTime)
 
 object Landsat8Query {
   val conf = ConfigFactory.load()
@@ -28,28 +30,28 @@ class Landsat8Query() {
   private var _cloudCoverageMin = 0.0
   private var _cloudCoverageMax = 100.0
   private var _startDate = "2013-02-11"
-  private var _endDate = formatDate(DateTime.now)
+  private var _endDate = formatDate(ZonedDateTime.now)
   private var _filterFunction: LandsatImage => Boolean = { x => true }
 
   private def aquisitionDate = s"acquisitionDate:[${_startDate}+TO+${_endDate}]"
 
-  private def formatDate(dt: DateTime): String =
-    DateTimeFormat.forPattern("YYYY-MM-dd").print(dt)
+  private def formatDate(dt: ZonedDateTime): String =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC).format(dt)
 
   private def doubleString(double: Double, fractionDigits: Int): String =
     s"%.${fractionDigits}f".formatLocal(Locale.ENGLISH, double)
 
-  def withStartDate(startDate: DateTime): Landsat8Query = {
+  def withStartDate(startDate: ZonedDateTime): Landsat8Query = {
     _startDate = formatDate(startDate)
     this
   }
 
-  def withEndDate(endDate: DateTime): Landsat8Query = {
+  def withEndDate(endDate: ZonedDateTime): Landsat8Query = {
     _endDate = formatDate(endDate)
     this
   }
 
-  def betweenDates(startDate: DateTime, endDate: DateTime): Landsat8Query = {
+  def betweenDates(startDate: ZonedDateTime, endDate: ZonedDateTime): Landsat8Query = {
     withStartDate(startDate)
     withEndDate(endDate)
   }

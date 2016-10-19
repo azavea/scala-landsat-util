@@ -5,11 +5,9 @@ import spray.http._
 import spray.httpx.SprayJsonSupport._
 import spray.client.pipelining._
 import akka.actor.ActorSystem
-import akka.io.IO
-import akka.pattern.ask
 import akka.util.Timeout
-import scala.concurrent.Future
-import scala.concurrent.Await
+
+import scala.concurrent.{Future, Await}
 import scala.concurrent.duration._
 
 object HttpClient {

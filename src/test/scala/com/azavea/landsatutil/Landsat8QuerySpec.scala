@@ -1,9 +1,9 @@
 package com.azavea.landsatutil
 
 import org.scalatest._
-import com.github.nscala_time.time.Imports._
 import geotrellis.vector._
 import geotrellis.vector.io._
+import java.time.{LocalDate, ZoneOffset, ZonedDateTime}
 
 import scala.util.matching.Regex
 
@@ -14,8 +14,8 @@ class Landsat8QuerySpec extends FunSpec with Matchers {
       val philly = Resource.string("/philly.json").parseGeoJson[Polygon]
       val images =
         Landsat8Query()
-          .withStartDate(new DateTime(2015, 8, 10, 0, 0, 0))
-          .withEndDate(new DateTime(2015, 8, 10, 0, 0, 0))
+          .withStartDate(ZonedDateTime.of(2015, 8, 10, 0, 0, 0, 0, ZoneOffset.UTC))
+          .withEndDate(ZonedDateTime.of(2015, 8, 10, 0, 0, 0, 0, ZoneOffset.UTC))
           .contains(philly)
           .collect()
 
@@ -24,7 +24,7 @@ class Landsat8QuerySpec extends FunSpec with Matchers {
     }
 
     it ("should produce only well formatted queries") {
-      val dateTime = new LocalDate(2014, 10, 22).toDateTimeAtStartOfDay
+      val dateTime = LocalDate.of(2014, 10, 22).atStartOfDay(ZoneOffset.UTC)
 
       // The coordinates are only used to produce a query string.
       // It is not important whether the resource exists.

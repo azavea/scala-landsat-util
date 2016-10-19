@@ -1,15 +1,17 @@
 package com.azavea.landsatutil
 
+import java.time.{ZoneOffset, ZonedDateTime, LocalDate}
+import java.time.format.DateTimeFormatter
+
 import spray.json._
-import com.github.nscala_time.time.Imports._
 import geotrellis.vector._
 
 object Json {
   def parseDate(s: String) =
-    DateTime.parse(s, DateTimeFormat.forPattern("YYYY-MM-dd"))
+    LocalDate.from(DateTimeFormatter.ofPattern("yyyy-MM-dd").parse(s)).atStartOfDay(ZoneOffset.UTC)
 
   def parseTime(s: String) =
-    DateTime.parse(s, DateTimeFormat.forPattern("YYYY:DDD:HH:mm:ss.SSSSSSS"))
+    ZonedDateTime.from(DateTimeFormatter.ofPattern("yyyy:DDD:HH:mm:ss.SSSSSSS").withZone(ZoneOffset.UTC).parse(s))
 
   implicit object QueryMetadataFormat extends RootJsonReader[QueryMetadata] {
     def read(json: JsValue): QueryMetadata =

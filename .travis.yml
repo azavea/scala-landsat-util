@@ -10,11 +10,9 @@ env:
 language: scala
 
 jdk:
-- oraclejdk7
 - oraclejdk8
 
 scala:
-- 2.10.6
 - 2.11.8
 
 cache:
@@ -39,35 +37,8 @@ deploy:
   skip_cleanup: true
   on:
     repo: azavea/scala-landsat-util
-    branch: master
-    jdk: oraclejdk7
-    scala: 2.10.6
-
-- provider: script
-  script: .travis/deploy.sh
-  skip_cleanup: true
-  on:
-    repo: azavea/scala-landsat-util
-    branch: master
-    jdk: oraclejdk7
-    scala: 2.11.8
-
-- provider: script
-  script: .travis/deploy.sh
-  skip_cleanup: true
-  on:
-    repo: azavea/scala-landsat-util
     tags: true
-    jdk: oraclejdk7
-    scala: 2.10.6
-
-- provider: script
-  script: .travis/deploy.sh
-  skip_cleanup: true
-  on:
-    repo: azavea/scala-landsat-util
-    tags: true
-    jdk: oraclejdk7
+    jdk: oraclejdk8
     scala: 2.11.8
 
 after_deploy:
