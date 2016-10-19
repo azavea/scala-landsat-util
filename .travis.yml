@@ -6,7 +6,6 @@ env:
 
     - secure: "ZL7ll1T2CJmo48Y5Jx5U8GruB6akHQGrqTQUC3Cikbp5Gle4xymtenQFyxbVedQ4sn1TPCKVa6qbdaU6lscFwrK6YpSh+lKnZouTsu+3sA73rRbASIbSKvLv6gFdhncP3/tR9gpfNbRwJP/3At2zwAXkpihGAAuHFrTsEkPHyy4DXSy2vWVKjmKvSBGx44bQgu8ogNlb4YrfMWQgbtgtwtSJVe0GoDekJBa8hVXqF+jZDZ1jODvinKA/Dwlm2vr/SlTFB9hg0f8ZHM9VxPME8fPHkncXzKTBhWtAAiCyhZA91x2tIG0w0HVxsCCp+E5KVKGg7FCeiqwcq7s0F8dyKDuRJpBtyDGeTGR4sODkaQvHi5EjraS2T2rM8v36U70OiBPHYOQppVzTThna4eQmE3pgRs9GiYKjxp+d6Zi/Aq07DCDu8k+++qLuOCcfG2ADA4MnjjBEaMKs8mlSGGabDib/0exq2/LU3FUGDZs05eSI2jpca5BaumzjLXdBvI8Nb+xcsPBjLnCKutQSz19NI8qJsalL57I5JMcLdaetpmBgNCEdIYfizpgqkMq6P8dek0BKslRPco3Iia/aIg6UnIWHzXbXiZDrRY5+e06Hx9Wz0nIwGEdCZ4nfaYwAzUNooSNC0jCItlN+V7E15komC5oMRjk4iKjftasK0wtZVuU="
 
-
 language: scala
 
 jdk:
@@ -32,6 +31,15 @@ before_deploy:
 - export LSU_VERSION_SUFFIX="-${TRAVIS_COMMIT:0:7}"
 
 deploy:
+- provider: script
+  script: .travis/deploy.sh
+  skip_cleanup: true
+  on:
+    repo: azavea/scala-landsat-util
+    branch: master
+    jdk: oraclejdk8
+    scala: 2.11.8
+
 - provider: script
   script: .travis/deploy.sh
   skip_cleanup: true
