@@ -22,13 +22,15 @@ shellPrompt := { s => Project.extract(s).currentProject.id + " > " }
 
 resolvers += "LocationTech GeoTrellis Releases" at "https://repo.locationtech.org/content/repositories/geotrellis-releases"
 
+val gtMode = if(sys.props.get("INCLUDE_GT").isDefined) "compile" else "provided"
+
 libraryDependencies ++= Seq(
   "io.spray" %% "spray-json" % "1.3.2",
-  "io.spray" %% "spray-client" % "1.3.3",
-  "io.spray" %% "spray-httpx" % "1.3.3",
-  "com.typesafe.akka" %% "akka-actor" % "2.3.16",
-  "org.locationtech.geotrellis" %% "geotrellis-vector" % Version.geotrellis % "provided",
-  "org.locationtech.geotrellis" %% "geotrellis-raster" % Version.geotrellis % "provided",
+  "com.typesafe.akka" %% "akka-actor" % Version.akka,
+  "com.typesafe.akka" %% "akka-http" % Version.akkaHttp,
+  "com.typesafe.akka" %% "akka-http-spray-json" % Version.akkaHttp,
+  "org.locationtech.geotrellis" %% "geotrellis-vector" % Version.geotrellis % gtMode,
+  "org.locationtech.geotrellis" %% "geotrellis-raster" % Version.geotrellis % gtMode,
   "org.apache.commons" % "commons-compress" % "1.12",
   "org.apache.commons" % "commons-io" % "1.3.2",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",

@@ -1,33 +1,35 @@
 package com.azavea.landsatutil
 
-import spray.json._
-import spray.http._
-import spray.httpx.SprayJsonSupport._
-import spray.client.pipelining._
 import akka.actor.ActorSystem
-import akka.util.Timeout
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.{HttpRequest, ResponseEntity, Uri}
+import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
+import akka.stream.ActorMaterializer
 
-import scala.concurrent.{Future, Await}
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 object HttpClient {
-  def get[T: RootJsonReader](url: String)(implicit timeout: Duration): T = {
+  type SprayJsonReader[R] = Unmarshaller[ResponseEntity, R]
+
+  def get[T: SprayJsonReader](url: String)(implicit timeout: Duration): T = {
     val system = ActorSystem(s"url_request_${java.util.UUID.randomUUID}")
+
     try {
       get(url, system)
     } finally {
-      system.shutdown()
+      system.terminate()
     }
   }
 
-  def get[T: RootJsonReader](url: String, system: ActorSystem)(implicit timeout: Duration): T = {
+  def get[T: SprayJsonReader](url: String, system: ActorSystem)(implicit timeout: Duration): T = {
     implicit val s = system
-    import s.dispatcher
-    implicit val t: Timeout = timeout.toMinutes minutes
+    implicit val materializer = ActorMaterializer()
+    import system.dispatcher
 
-    val pipeline = sendReceive ~> unmarshal[T]
-    val response: Future[T] =
-      pipeline(Get(url))
+    val response = Http()
+      .singleRequest(HttpRequest(uri = Uri(url)))
+      .flatMap(resp ⇒ Unmarshal(resp.entity).to[T])
 
     Await.result(response, timeout)
   }

@@ -1,13 +1,17 @@
 package com.azavea.landsatutil
 
-import akka.actor.ActorSystem
-import com.typesafe.config.ConfigFactory
-import geotrellis.vector._
-import Json._
-
-import java.time.{ZoneOffset, ZonedDateTime}
 import java.time.format.DateTimeFormatter
+import java.time.{ZoneOffset, ZonedDateTime}
 import java.util.Locale
+
+import akka.actor.ActorSystem
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import com.azavea.landsatutil.Json._
+import com.typesafe.config.ConfigFactory
+import com.typesafe.scalalogging.LazyLogging
+import geotrellis.vector._
+
+import scala.util.control.NonFatal
 
 case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
   def mapImages(f: Seq[LandsatImage] => Seq[LandsatImage]): QueryResult =
@@ -25,7 +29,7 @@ object Landsat8Query {
 
 }
 
-class Landsat8Query() {
+class Landsat8Query() extends SprayJsonSupport with LazyLogging {
   private var _boundsQuery: String = ""
   private var _cloudCoverageMin = 0.0
   private var _cloudCoverageMax = 100.0
@@ -127,8 +131,8 @@ class Landsat8Query() {
       val result = HttpClient.get[QueryResult](url)
       Some(result.mapImages(_.filter(_filterFunction)))
     } catch {
-      case e: spray.httpx.UnsuccessfulResponseException if e.response.status.intValue == 404 =>
-        // Not found
+      case NonFatal(e) ⇒
+        logger.warn("Request failed: " + url, e)
         None
     }
   }
@@ -152,17 +156,20 @@ class Landsat8Query() {
           val skip = g * 100
           s"${Landsat8Query.API_URL}?$search&limit=100&skip=$skip"
         }
+        // TODO: Allow Akka to handle parallelism
         .par
+        // TODO: Make use of Host-level connection pool
         .flatMap { url => HttpClient.get[QueryResult](url, system).images }
         .filter(_filterFunction)
         .toList
     } catch {
-      case e: spray.httpx.UnsuccessfulResponseException if e.response.status.intValue == 404 =>
+      //case e: spray.httpx.UnsuccessfulResponseException if e.response.status.intValue == 404 =>
+      case e: Exception ⇒
+        logger.warn("Request failed: " + url, e)
         // Not found
         Seq()
     } finally {
-      system.shutdown()
+      system.terminate()
     }
-
   }
 }

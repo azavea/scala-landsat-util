@@ -114,7 +114,7 @@ object Json {
             results.map(_.convertTo[LandsatImage])
           )
         case _ =>
-          throw new DeserializationException("QueryResult expected.")
+          throw new DeserializationException("QueryResult expected. Received: " + json)
       }
   }
 
