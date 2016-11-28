@@ -6,16 +6,15 @@ import java.util.Locale
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
 import com.azavea.landsatutil.Json._
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.vector._
 
-import scala.collection.immutable.IndexedSeq
 import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success, Try}
-import scala.util.control.NonFatal
+import scala.util.Try
 
 case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
   def mapImages(f: Seq[LandsatImage] => Seq[LandsatImage]): QueryResult =
@@ -129,49 +128,45 @@ class Landsat8Query() extends SprayJsonSupport with LazyLogging {
     ).filter(!_.isEmpty).mkString("+AND+")
 
   def execute(limit: Int = 1000, skip: Int = 0)(implicit timeout: scala.concurrent.duration.Duration): Try[QueryResult] = {
-    implicit val system = ActorSystem(s"landsat_query_collect_${java.util.UUID.randomUUID}")
-    implicit val materializer = ActorMaterializer()
-    import system.dispatcher
+    val query = Uri.Query(s"search=$searchTerms&limit=$limit&skip=$skip")
+    val client = new HttpClient(Landsat8Query.API_URL)
+    // Imports execution context for `Future`s to run in.
+    import client.system.dispatcher
     try {
-      val search = s"search=$searchTerms&limit=$limit&skip=$skip"
-      val url = s"${Landsat8Query.API_URL}?$search"
-      val result = HttpClient.get[QueryResult](url)
+      val result = client.get[QueryResult](query)
         .map(_.mapImages(_.filter(_filterFunction)))
       Try(Await.result(result, timeout))
     }
     finally {
-      system.terminate()
+      client.shutdown()
     }
   }
 
   def collect(terminateAkka: Boolean = true): Seq[LandsatImage] = {
     implicit val timeout = scala.concurrent.duration.Duration(1000, scala.concurrent.duration.SECONDS)
-    implicit val system = ActorSystem(s"landsat_query_collect_${java.util.UUID.randomUUID}")
 
-    // Imports context for `Future`s to resolve in.
-    import system.dispatcher
-
-    val search = s"search=$searchTerms"
-    val url = s"${Landsat8Query.API_URL}?$search"
+    val termSearch = s"search=$searchTerms"
 
     def numGroups(total: Int): Int = {
       val g = total / 100
       if (g * 100 == total) g else g + 1
     }
 
-    def queryGroup(groupNum: Int): String = {
+    def queryGroup(groupNum: Int) = {
       val skip = groupNum * 100
-      s"${Landsat8Query.API_URL}?$search&limit=100&skip=$skip"
+      Uri.Query(s"$termSearch&limit=100&skip=$skip")
     }
 
-    implicit val materializer = ActorMaterializer()
+    val client = new HttpClient(Landsat8Query.API_URL)
+    // Imports execution context for `Future`s to run in.
+    import client.system.dispatcher
+
     try {
       // TODO: Make use of Host-level connection pool
-      val parallelRequests = HttpClient.get[QueryResult](url).flatMap(query ⇒ {
+      val parallelRequests = client.get[QueryResult](Uri.Query(termSearch)).flatMap(query ⇒ {
         val groups = numGroups(query.metadata.total)
         val groupImages = for (g ← 0 until groups) yield {
-          val url = queryGroup(g)
-          HttpClient.get[QueryResult](url)
+          client.get[QueryResult](queryGroup(g))
             .map(_.images.filter(_filterFunction))
         }
         Future.sequence(groupImages).map(_.flatten)
@@ -182,11 +177,11 @@ class Landsat8Query() extends SprayJsonSupport with LazyLogging {
     } catch {
       //case e: spray.httpx.UnsuccessfulResponseException if e.response.status.intValue == 404 =>
       case e: Exception ⇒
-        logger.warn("Request failed: " + url, e)
+        logger.warn("Http request failed: ", e)
         // Not found
         Seq()
     } finally {
-      system.terminate()
+      client.shutdown()
     }
   }
 }

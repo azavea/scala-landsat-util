@@ -14,6 +14,15 @@ object Examples {
     intersectExample()
   }
 
+  def log(image: LandsatImage): Unit = {
+    println(s"${image.sceneId} - ${image.cloudPercentage}% clouds")
+    println(s"\tAquisition Date: ${image.aquisitionDate}")
+    println(s"\tUSGS Thumbnail URL: ${image.thumbnailUrl}")
+    println(s"\tAWS large thumbnail URL: ${image.largeThumbnail}")
+    println(s"\tGoogle URL: ${image.googleUrl}")
+    println(s"\tFootprint GeoJSON: ${image.footprint.toGeoJson}")
+  }
+
   def phillyExample(): Unit = {
     val philly = GeoJson.fromFile[Polygon]("src/test/resources/philly.json")
 
@@ -25,19 +34,11 @@ object Examples {
         .intersects(philly)
         .collect()
 
+    println("Checking S3 for images...")
     val filtered =
       images.filter(_.imageExistsS3())
 
-    filtered
-      .foreach { image =>
-        println(s"${image.sceneId} - ${image.cloudPercentage}% clouds")
-        println(s"\tAquisition Date: ${image.aquisitionDate}")
-        println(s"\tUSGS Thumbnail URL: ${image.thumbnailUrl}")
-        println(s"\tAWS large thumbnail URL: ${image.largeThumbnail}")
-        println(s"\tGoogle URL: ${image.googleUrl}")
-        println(s"\tFootprint GeoJSON: ${image.footprint.toGeoJson}")
-      }
-
+    filtered.foreach(log)
     println(s"Results: ${filtered.size} images.")
   }
 
@@ -51,12 +52,11 @@ object Examples {
 
     result match {
       case Success(r) =>
-        for(image <- r.images.take(1)) {
-          println(image.thumbnailUrl)
-          println(image.largeThumbnail)
-          println(image.smallThumbnail)
-        }
         println(s"RESULT COUNT: ${r.metadata.total}")
+        if(r.metadata.total > 0) {
+          println("First result: ")
+          r.images.headOption.foreach(log)
+        }
       case Failure(e) =>
         println("No results found!: " + e.getMessage)
     }
