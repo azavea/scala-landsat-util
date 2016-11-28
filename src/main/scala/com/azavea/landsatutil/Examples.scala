@@ -3,13 +3,16 @@ package com.azavea.landsatutil
 import geotrellis.vector._
 import geotrellis.vector.io._
 import geotrellis.vector.io.json.GeoJson
-import Json._
 
-import java.time.{ZonedDateTime, ZoneOffset}
+import java.time.{ZoneOffset, ZonedDateTime}
+
+import scala.util.{Failure, Success}
 
 object Examples {
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     phillyExample()
+    intersectExample()
+  }
 
   def phillyExample(): Unit = {
     val philly = GeoJson.fromFile[Polygon]("src/test/resources/philly.json")
@@ -47,15 +50,15 @@ object Examples {
         .execute()
 
     result match {
-      case Some(r) =>
+      case Success(r) =>
         for(image <- r.images.take(1)) {
           println(image.thumbnailUrl)
           println(image.largeThumbnail)
           println(image.smallThumbnail)
         }
         println(s"RESULT COUNT: ${r.metadata.total}")
-      case None =>
-        println("No results found!")
+      case Failure(e) =>
+        println("No results found!: " + e.getMessage)
     }
   }
 }
