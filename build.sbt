@@ -20,22 +20,22 @@ pomIncludeRepository := { _ => false }
 
 shellPrompt := { s => Project.extract(s).currentProject.id + " > " }
 
-resolvers += Resolver.bintrayRepo("azavea", "geotrellis")
+resolvers += "LocationTech GeoTrellis Releases" at "https://repo.locationtech.org/content/repositories/geotrellis-releases"
 
 libraryDependencies ++= Seq(
   "io.spray"        %% "spray-json"    % "1.3.2",
   "io.spray"        %% "spray-client"  % "1.3.3",
   "io.spray"        %% "spray-httpx"   % "1.3.3",
-  "com.typesafe.akka"      %% "akka-actor"   % "2.3.15",
-  "com.azavea.geotrellis"  %% "geotrellis-vector" % Version.geotrellis % "provided",
-  "com.azavea.geotrellis"  %% "geotrellis-raster" % Version.geotrellis % "provided",
-  "org.apache.commons" % "commons-compress" % "1.8",
+  "com.typesafe.akka"      %% "akka-actor"   % "2.4.16",
+  "org.locationtech.geotrellis"  %% "geotrellis-vector" % Version.geotrellis % "provided",
+  "org.locationtech.geotrellis"  %% "geotrellis-raster" % Version.geotrellis % "provided",
+  "org.apache.commons" % "commons-compress" % "1.13",
   "org.apache.commons" % "commons-io" % "1.3.2",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.9.34",
-  "com.chuusai"   %% "shapeless" % "2.3.0",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.37",
+  "com.chuusai"   %% "shapeless" % "2.3.2",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
-  "org.scalatest"          %%  "scalatest"     % "3.0.0" % "test"
+  "org.scalatest"          %%  "scalatest"     % "3.0.1" % "test"
 )
 
 bintrayOrganization := Some("azavea")
