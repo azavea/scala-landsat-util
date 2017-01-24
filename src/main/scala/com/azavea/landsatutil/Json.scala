@@ -7,10 +7,10 @@ import spray.json._
 import geotrellis.vector._
 
 object Json {
-  def parseDate(s: String) =
+  def parseDate(s: String): ZonedDateTime =
     LocalDate.from(DateTimeFormatter.ofPattern("yyyy-MM-dd").parse(s)).atStartOfDay(ZoneOffset.UTC)
 
-  def parseTime(s: String) =
+  def parseTime(s: String): ZonedDateTime =
     ZonedDateTime.from(DateTimeFormatter.ofPattern("yyyy:DDD:HH:mm:ss.SSSSSSS").withZone(ZoneOffset.UTC).parse(s))
 
   implicit object QueryMetadataFormat extends RootJsonReader[QueryMetadata] {
@@ -33,10 +33,10 @@ object Json {
             jv match {
               case JsString(s) => s
               case _ =>
-                throw new DeserializationException(s"Expected field $field to be a string value.")
+                throw DeserializationException(s"Expected field $field to be a string value.")
             }
           case None =>
-            throw new DeserializationException(s"Expected field $field in image data.")
+            throw DeserializationException(s"Expected field $field in image data.")
         }
 
       def getNumber(field: String): BigDecimal =
@@ -45,10 +45,10 @@ object Json {
             jv match {
               case JsNumber(n) => n
               case _ =>
-                throw new DeserializationException(s"Expected field $field to be a number value.")
+                throw DeserializationException(s"Expected field $field to be a number value.")
             }
           case None =>
-            throw new DeserializationException(s"Expected field $field in image data.")
+            throw DeserializationException(s"Expected field $field in image data.")
         }
 
       val sceneId = getString("sceneID")
@@ -109,7 +109,7 @@ object Json {
             results.map(_.convertTo[LandsatImage])
           )
         case _ =>
-          throw new DeserializationException("QueryResult expected.")
+          throw DeserializationException("QueryResult expected.")
       }
   }
 

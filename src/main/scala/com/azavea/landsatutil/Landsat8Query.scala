@@ -16,8 +16,8 @@ case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
 case class QueryMetadata(found: Int, page: Int, limit: Int)
 
 object Landsat8Query {
-  val conf = ConfigFactory.load()
-  val API_URL = conf.getString("landsatutil.apiUrl")
+  val conf: Config = ConfigFactory.load()
+  val API_URL: String = conf.getString("landsatutil.apiUrl")
   val DEFAULT_FETCH_SIZE = 100
 
   def apply(): Landsat8Query =
@@ -113,7 +113,7 @@ class Landsat8Query() {
     this
   }
 
-  def searchTerms =
+  def searchTerms: String =
     Array(
       _boundsQuery,
       s"cloudCoverFull:[${doubleString(_cloudCoverageMin, 2)}+TO+${doubleString(_cloudCoverageMax, 2)}]",
