@@ -18,7 +18,8 @@ case class QueryMetadata(found: Int, page: Int, limit: Int)
 object Landsat8Query {
   val conf: Config = ConfigFactory.load()
   val API_URL: String = conf.getString("landsatutil.apiUrl")
-  val DEFAULT_FETCH_SIZE = 100
+  val ExecuteQueryLimit = 1000
+  val CollectQueryLimit = 100
 
   def apply(): Landsat8Query =
     new Landsat8Query
@@ -120,7 +121,7 @@ class Landsat8Query() {
       aquisitionDate
     ).filter(!_.isEmpty).mkString("+AND+")
 
-  def execute(limit: Int = 1000, page: Int = 1)(implicit timeout: scala.concurrent.duration.Duration): Option[QueryResult] = {
+  def execute(limit: Int = Landsat8Query.ExecuteQueryLimit, page: Int = 1)(implicit timeout: scala.concurrent.duration.Duration): Option[QueryResult] = {
     val search = s"search=$searchTerms&limit=$limit&page=$page"
     val url = s"${Landsat8Query.API_URL}?$search"
     try {
@@ -142,11 +143,11 @@ class Landsat8Query() {
     try {
       val count = HttpClient.get[QueryResult](url, system).metadata.found
 
-      val pages = count / Landsat8Query.DEFAULT_FETCH_SIZE + 1
+      val pages = count / Landsat8Query.CollectQueryLimit + 1
 
       (1 to pages)
         .map { page =>
-          s"${Landsat8Query.API_URL}?$search&limit=${Landsat8Query.DEFAULT_FETCH_SIZE}&page=$page"
+          s"${Landsat8Query.API_URL}?$search&limit=${Landsat8Query.CollectQueryLimit}&page=$page"
         }
         .par
         .flatMap { url => HttpClient.get[QueryResult](url, system).images }
