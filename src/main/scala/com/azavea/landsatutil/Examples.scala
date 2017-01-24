@@ -53,7 +53,7 @@ object Examples {
           println(image.largeThumbnail)
           println(image.smallThumbnail)
         }
-        println(s"RESULT COUNT: ${r.metadata.total}")
+        println(s"RESULT COUNT: ${r.metadata.found}")
       case None =>
         println("No results found!")
     }

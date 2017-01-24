@@ -15,16 +15,11 @@ object Json {
 
   implicit object QueryMetadataFormat extends RootJsonReader[QueryMetadata] {
     def read(json: JsValue): QueryMetadata =
-      json.asJsObject.getFields("last_updated", "results") match {
-        case Seq(JsString(lastUpdated), results) =>
-          results.asJsObject.getFields("skip", "limit", "total") match {
-            case Seq(JsNumber(skip), JsNumber(limit), JsNumber(total)) =>
-              QueryMetadata(total.toInt, skip.toInt, limit.toInt, parseDate(lastUpdated))
-            case _ =>
-              throw new DeserializationException("QueryMetadata expected.")
-          }
+      json.asJsObject.getFields("found", "page", "limit") match {
+        case Seq(JsNumber(found), JsNumber(page), JsNumber(limit)) =>
+          QueryMetadata(found.toInt,page.toInt, limit.toInt)
         case _ =>
-          throw new DeserializationException("QueryMetadata expected.")
+          throw DeserializationException("QueryMetadata expected.")
       }
   }
 
