@@ -5,7 +5,7 @@ import java.time.LocalDate
 import org.scalatest._
 
 class MtlSpec extends FunSpec with Matchers {
-  val m = MTL.fromStream(Resource.stream("/MTL.txt"))
+  val m: MTL = MTL.fromStream(Resource.stream("/MTL.txt"))
 
   it("should produce None given wrong type"){
     m.metadataFileInfo.fields.contains("STATION_ID") should be (true)

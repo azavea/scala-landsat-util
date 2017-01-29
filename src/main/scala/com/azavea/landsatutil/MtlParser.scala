@@ -2,8 +2,9 @@ package com.azavea.landsatutil
 
 import scala.util.parsing.combinator._
 import java.io._
+import java.time.{LocalDate, LocalTime, ZoneOffset, ZonedDateTime}
 
-import java.time.{ZonedDateTime, LocalDate, LocalTime, ZoneOffset}
+import scala.util.matching.Regex
 
 class MtlParser extends JavaTokenParsers {
   import MtlParser._
@@ -40,7 +41,7 @@ class MtlParser extends JavaTokenParsers {
 
   def mtlGroup: Parser[MtlGroup] =
     groupStart ~ (field*) <~ groupEnd map { case name ~ fields =>
-      new MtlGroup(name, fields.toMap)
+      MtlGroup(name, fields.toMap)
     }
 
   def mtlFile: Parser[Map[String, MtlGroup]] =
@@ -49,7 +50,7 @@ class MtlParser extends JavaTokenParsers {
       (for (group <- groups) yield (group.name, group)).toMap
     }
 
-  def apply(input: Reader) = {
+  def apply(input: Reader): Option[MTL] = {
     val res = parseAll(mtlFile <~ "END", input)
     res match {
       case Success(mtl, _) =>
@@ -65,7 +66,7 @@ class MtlParser extends JavaTokenParsers {
 }
 
 object MtlParser {
-  val timeRx = """"?(\d{2}:\d{2}:\d{2}.\d+)Z"?""".r
+  val timeRx: Regex = """"?(\d{2}:\d{2}:\d{2}.\d+)Z"?""".r
 
   def apply(input: Reader): Option[MTL] = {
     val parser = new MtlParser()

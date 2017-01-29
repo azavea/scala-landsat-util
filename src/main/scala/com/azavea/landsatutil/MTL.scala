@@ -15,15 +15,15 @@ case class MtlGroup(name: String, fields: Map[String, Any]) {
 }
 
 case class MTL(group: Map[String, MtlGroup]) {
-  def metadataFileInfo = group("METADATA_FILE_INFO")
-  def productMetadata = group("PRODUCT_METADATA")
-  def imageAttributes = group("IMAGE_ATTRIBUTES")
-  def minMaxRadiance = group("MIN_MAX_RADIANCE")
-  def minMaxReflectance = group("MIN_MAX_REFLECTANCE")
-  def minMaxPixelValue = group("MIN_MAX_PIXEL_VALUE")
-  def radiometricRescaling = group("RADIOMETRIC_RESCALING")
-  def tirsThermalConstants = group("TIRS_THERMAL_CONSTANTS")
-  def projectionParameters = group("PROJECTION_PARAMETERS")
+  def metadataFileInfo: MtlGroup = group("METADATA_FILE_INFO")
+  def productMetadata: MtlGroup = group("PRODUCT_METADATA")
+  def imageAttributes: MtlGroup = group("IMAGE_ATTRIBUTES")
+  def minMaxRadiance: MtlGroup = group("MIN_MAX_RADIANCE")
+  def minMaxReflectance: MtlGroup = group("MIN_MAX_REFLECTANCE")
+  def minMaxPixelValue: MtlGroup = group("MIN_MAX_PIXEL_VALUE")
+  def radiometricRescaling: MtlGroup = group("RADIOMETRIC_RESCALING")
+  def tirsThermalConstants: MtlGroup = group("TIRS_THERMAL_CONSTANTS")
+  def projectionParameters: MtlGroup = group("PROJECTION_PARAMETERS")
 }
 
 object MTL {

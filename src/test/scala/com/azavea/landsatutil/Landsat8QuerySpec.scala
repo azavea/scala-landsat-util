@@ -6,6 +6,7 @@ import geotrellis.vector.io._
 import java.time.{LocalDate, ZoneOffset, ZonedDateTime}
 
 import scala.util.matching.Regex
+import scala.util.{Failure, Success}
 
 class Landsat8QuerySpec extends FunSpec with Matchers {
 
@@ -17,7 +18,10 @@ class Landsat8QuerySpec extends FunSpec with Matchers {
           .withStartDate(ZonedDateTime.of(2015, 8, 10, 0, 0, 0, 0, ZoneOffset.UTC))
           .withEndDate(ZonedDateTime.of(2015, 8, 10, 0, 0, 0, 0, ZoneOffset.UTC))
           .contains(philly)
-          .collect()
+          .collect() match {
+            case Success(r) => r
+            case Failure(e) => throw e
+          }
 
       images.size should be (1)
       images.head.sceneId should be ("LC80140322015222LGN00")

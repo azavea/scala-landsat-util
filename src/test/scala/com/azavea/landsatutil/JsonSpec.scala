@@ -17,7 +17,7 @@ class JsonSpec extends FunSpec with Matchers {
     it("should deserialize metadata json") {
       val json = Resource.string("/test-meta.json")
       val meta = json.parseJson.convertTo[QueryMetadata]
-      meta.total should be (173)
+      meta.found should be (173)
     }
 
     it("should deserialize example json response from api") {
