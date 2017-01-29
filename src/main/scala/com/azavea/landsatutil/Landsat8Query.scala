@@ -4,15 +4,16 @@ import java.time.format.DateTimeFormatter
 import java.time.{ZoneOffset, ZonedDateTime}
 import java.util.Locale
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.Uri
-import akka.stream.ActorMaterializer
 import com.azavea.landsatutil.Json._
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
 import geotrellis.vector._
 
+import java.time.{ZoneOffset, ZonedDateTime}
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import scala.concurrent.{Await, Future}
 import scala.util.Try
 
@@ -21,11 +22,13 @@ case class QueryResult(metadata: QueryMetadata, images: Seq[LandsatImage]) {
     QueryResult(metadata: QueryMetadata, f(images))
 }
 
-case class QueryMetadata(total: Int, skip: Int, limit: Int, lastUpdated: ZonedDateTime)
+case class QueryMetadata(found: Int, page: Int, limit: Int)
 
 object Landsat8Query {
-  val conf = ConfigFactory.load()
-  val API_URL = conf.getString("landsatutil.apiUrl")
+  val conf: Config = ConfigFactory.load()
+  val API_URL: String = conf.getString("landsatutil.apiUrl")
+  val ExecuteQueryLimit = 1000
+  val CollectQueryLimit = 100
 
   def apply() = new Landsat8Query()
 }
@@ -120,18 +123,19 @@ class Landsat8Query() extends SprayJsonSupport with LazyLogging {
     this
   }
 
-  def searchTerms =
+  def searchTerms: String =
     Array(
       _boundsQuery,
       s"cloudCoverFull:[${doubleString(_cloudCoverageMin, 2)}+TO+${doubleString(_cloudCoverageMax, 2)}]",
       aquisitionDate
     ).filter(!_.isEmpty).mkString("+AND+")
 
-  def execute(limit: Int = 1000, skip: Int = 0)(implicit timeout: scala.concurrent.duration.Duration): Try[QueryResult] = {
-    val query = Uri.Query(s"search=$searchTerms&limit=$limit&skip=$skip")
+  def execute(limit: Int = Landsat8Query.ExecuteQueryLimit, page: Int = 1)(implicit timeout: scala.concurrent.duration.Duration): Try[QueryResult] = {
+    val query = Uri.Query(s"search=$searchTerms&limit=$limit&page=$page")
     val client = new HttpClient(Landsat8Query.API_URL)
     // Imports execution context for `Future`s to run in.
     import client.system.dispatcher
+
     try {
       val result = client.get[QueryResult](query)
         .map(_.mapImages(_.filter(_filterFunction)))
@@ -142,7 +146,7 @@ class Landsat8Query() extends SprayJsonSupport with LazyLogging {
     }
   }
 
-  def collect(terminateAkka: Boolean = true): Seq[LandsatImage] = {
+  def collect(terminateAkka: Boolean = true): Try[Seq[LandsatImage]] = {
     implicit val timeout = scala.concurrent.duration.Duration(1000, scala.concurrent.duration.SECONDS)
 
     val termSearch = s"search=$searchTerms"
@@ -161,31 +165,27 @@ class Landsat8Query() extends SprayJsonSupport with LazyLogging {
     // Imports execution context for `Future`s to run in.
     import client.system.dispatcher
 
-    try {
-      // TODO: Make use of Host-level connection pool
-      val parallelRequests = client.get[QueryResult](Uri.Query(termSearch)).flatMap(query ⇒ {
-        val groups = numGroups(query.metadata.total)
-        val groupImages = for (g ← 0 until groups) yield {
-          client.get[QueryResult](queryGroup(g))
-            .map(_.images.filter(_filterFunction))
-        }
-        Future.sequence(groupImages).map(_.flatten)
-      })
+    Try {
+      try {
+        // TODO: Make use of Host-level connection pool
+        val parallelRequests =
+          client.get[QueryResult](Uri.Query(termSearch))
+            .flatMap(query ⇒ {
+              val groups = numGroups(query.metadata.found)
+              val groupImages =
+                for (g ← 0 until groups) yield {
+                  client
+                    .get[QueryResult](queryGroup(g))
+                    .map(_.images.filter(_filterFunction))
+                }
+              Future.sequence(groupImages).map(_.flatten)
+            })
 
-      // Fork-join pattern...
-      Await.result(parallelRequests, timeout)
-    } catch {
-      //case e: spray.httpx.UnsuccessfulResponseException if e.response.status.intValue == 404 =>
-      case e: Exception ⇒
-        logger.warn("Http request failed: ", e)
-        // Not found
-        Seq()
-    } finally {
-<<<<<<< HEAD
-      client.shutdown()
-=======
-      system.terminate()
->>>>>>> gaf/versionupdate
+        // Fork-join pattern...
+        Await.result(parallelRequests, timeout)
+      } finally {
+        client.shutdown()
+      }
     }
   }
 }

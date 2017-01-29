@@ -32,7 +32,10 @@ object Examples {
         .withEndDate(ZonedDateTime.of(2015, 11, 5, 0, 0, 0, 0, ZoneOffset.UTC))
         .withMaxCloudCoverage(80.0)
         .intersects(philly)
-        .collect()
+        .collect() match {
+          case Success(r) => r
+          case Failure(e) => throw e
+        }
 
     println("Checking S3 for images...")
     val filtered =
@@ -52,11 +55,12 @@ object Examples {
 
     result match {
       case Success(r) =>
-        println(s"RESULT COUNT: ${r.metadata.total}")
-        if(r.metadata.total > 0) {
-          println("First result: ")
-          r.images.headOption.foreach(log)
+        for(image <- r.images.take(1)) {
+          println(image.thumbnailUrl)
+          println(image.largeThumbnail)
+          println(image.smallThumbnail)
         }
+        println(s"RESULT COUNT: ${r.metadata.found}")
       case Failure(e) =>
         println("No results found!: " + e.getMessage)
     }

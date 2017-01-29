@@ -45,10 +45,14 @@ class HttpClient(apiEndpoint: Uri)(implicit val system: ActorSystem = ActorSyste
   /** Release all resources associated with network communications. */
   def shutdown(): Unit = {
     protocol.shutdownAllConnectionPools() onComplete { _ ⇒
-      materializer.shutdown()
+      val x = materializer.shutdown()
       // As a hack, using Akka system name to determine if we created it.
-      if(system.name.startsWith(HttpClient.AKKA_COOKIE))
+      if(system.name.startsWith(HttpClient.AKKA_COOKIE)) {
+        // This produces a logged error that is not actually an error.
+        // See https://github.com/akka/akka-http/issues/497,
+        // TODO: Remove this comment when Akka fixes the message.
         system.terminate()
+      }
     }
   }
 }
