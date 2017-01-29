@@ -181,7 +181,11 @@ class Landsat8Query() extends SprayJsonSupport with LazyLogging {
         // Not found
         Seq()
     } finally {
+<<<<<<< HEAD
       client.shutdown()
+=======
+      system.terminate()
+>>>>>>> gaf/versionupdate
     }
   }
 }

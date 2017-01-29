@@ -31,7 +31,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % Version.akkaHttp,
   "org.locationtech.geotrellis" %% "geotrellis-vector" % Version.geotrellis % gtMode,
   "org.locationtech.geotrellis" %% "geotrellis-raster" % Version.geotrellis % gtMode,
-  "org.apache.commons" % "commons-compress" % "1.12",
+  "org.apache.commons" % "commons-compress" % "1.13",
   "org.apache.commons" % "commons-io" % "1.3.2",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.60",
