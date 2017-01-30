@@ -1,22 +1,24 @@
 # Landsat API client for Scala
 
-This is a scala client for Developmentseed's [landsat-api](https://github.com/developmentseed/landsat-api/)
+This is a scala client for Developmentseed's [sat-api](https://github.com/sat-utils/sat-api).
 
 ### Example usages
 
 ```scala
-  val philly = GeoJson.fromFile[Polygon]("src/test/resources/philly.json")
+  val philly: Polygon = GeoJson.fromFile[Polygon]("src/test/resources/philly.json")
 
-  val images =
+  val images: Seq[LandsatImage] =
     Landsat8Query()
-      .withStartDate(new DateTime(2012, 1, 12, 0, 0, 0))
-      .withEndDate(new DateTime(2015, 11, 5, 0, 0, 0))
+      .withStartDate(ZonedDateTime.of(2012, 1, 12, 0, 0, 0, 0, ZoneOffset.UTC))
+      .withEndDate(ZonedDateTime.of(2015, 11, 5, 0, 0, 0, 0, ZoneOffset.UTC))
       .withMaxCloudCoverage(80.0)
       .intersects(philly)
-      .collect()
+      .collect() match {
+        case Success(r) => r
+        case Failure(e) => throw e
+      }
 
-  val s3Client = S3Client()
-  val filtered = images.filter(s3Client.imageExists(_))
+  val filtered: Seq[LandsatImage] = images.filter(_.imageExistsS3())
 
   filtered
     .foreach { image =>
@@ -34,20 +36,20 @@ This is a scala client for Developmentseed's [landsat-api](https://github.com/de
 ```scala
   implicit val d = scala.concurrent.duration.Duration(30, scala.concurrent.duration.SECONDS)
 
-  val result =
+  val result: Try[QueryResult] =
     Landsat8Query()
-      .intersects(-75.65185546874999,39.69701710019832,-74.718017578125,40.24009510908543)
+      .intersects(-75.65185546874999, 39.69701710019832, -74.718017578125, 40.24009510908543)
       .execute()
 
   result match {
-    case Some(r) =>
-      for(image <- r.images.take(1)) {
+    case Success(r) =>
+      for (image <- r.images.take(1)) {
         println(image.thumbnailUrl)
         println(image.largeThumbnail)
         println(image.smallThumbnail)
       }
-      println(s"RESULT COUNT: ${r.metadata.total}")
-    case None =>
+      println(s"RESULT COUNT: ${r.metadata.found}")
+    case Failure(_) =>
       println("No results found!")
   }
 ```
