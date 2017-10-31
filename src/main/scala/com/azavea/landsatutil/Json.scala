@@ -39,6 +39,19 @@ object Json {
             throw DeserializationException(s"Expected field $field in image data.")
         }
 
+      def getNullableString(field: String): String =
+        fields.get(field) match {
+          case Some(jv) =>
+            jv match {
+              case JsString(s) => s
+              case JsNull => ""
+              case _ =>
+                throw DeserializationException(s"Expected field $field to be a string value or null.")
+            }
+          case None =>
+            throw DeserializationException(s"Expected field $field in image data.")
+        }
+
       def getNumber(field: String): BigDecimal =
         fields.get(field) match {
           case Some(jv) =>
@@ -72,7 +85,7 @@ object Json {
       val sunElevation = getNumber("sunElevation")
       val dayOrNight = getString("dayOrNight")
       val sensor = getString("sensor")
-      val receivingStation = getString("receivingStation")
+      val receivingStation = getNullableString("receivingStation")
       val dateUpdated = getString("dateUpdated")
 
       LandsatImage(

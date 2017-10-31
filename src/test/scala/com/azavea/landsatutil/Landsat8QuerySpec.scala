@@ -24,7 +24,7 @@ class Landsat8QuerySpec extends FunSpec with Matchers {
           }
 
       images.size should be (1)
-      images.head.sceneId should be ("LC80140322015222LGN00")
+      images.head.sceneId should be ("LC80140322015222LGN01")
     }
 
     it ("should produce only well formatted queries") {
